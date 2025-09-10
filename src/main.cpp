@@ -17,7 +17,7 @@ int main()
 
 
     // Запуска собственного теста (как в задании) 
-    run();
+    // run();
 
 
 
@@ -31,7 +31,7 @@ int main()
 
 
     // Генерация данных для сравнения с идеальным кэшем
-    // generateData();
+    generateData();
 }
 
 static void run()
@@ -42,7 +42,7 @@ static void run()
     int key = 0;
 
 
-    std::cout << "Enter [cache capacity] [number of keys] <keys>" << std::endl;
+    // std::cout << "Enter [cache capacity] [number of keys] <keys>" << std::endl;
     std::cin >> capacity >> numOfKeys;
 
     LIRSCache<int> cache(capacity);
@@ -59,5 +59,5 @@ static void run()
         std::cout << cache << std::endl;
     }
 
-    std::cout << "Misses: " << misses << std::endl;
+    // std::cout << "Misses: " << misses << std::endl;
 }

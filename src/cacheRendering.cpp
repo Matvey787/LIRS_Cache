@@ -12,7 +12,6 @@ static void generateKeys(std::vector<int>& keys, size_t numOfKeys = 50, size_t k
 static size_t getCacheMisses(const std::vector<int>& keys);
 
 
-template <typename T>
 void generateData(const std::string& dataFile)
 {
     std::ofstream fileWriteTo(dataFile);
