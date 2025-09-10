@@ -17,7 +17,7 @@ int main()
 
 
     // Запуска собственного теста (как в задании) 
-    // run();
+    run();
 
 
 
@@ -31,14 +31,14 @@ int main()
 
 
     // Генерация данных для сравнения с идеальным кэшем
-    generateData();
+    // generateData();
 }
 
 static void run()
 {
     size_t capacity = 0;
     size_t numOfKeys = 0;
-    size_t misses = 0;
+    size_t hits = 0;
     int key = 0;
 
 
@@ -51,13 +51,16 @@ static void run()
     {
         std::cin >> key;
 
-        if (cache.get(key) == nullptr)
+        if (cache.get(key) != nullptr)
         {
-            misses++;
-            cache.put(key, key);
+            hits++;
         }
-        std::cout << cache << std::endl;
+        else
+        {
+            cache.put(key, key);
+        }   
     }
 
-    // std::cout << "Misses: " << misses << std::endl;
+    // std::cout << "Hits: " << hits << std::endl;
+    std::cout << hits << std::endl;
 }
