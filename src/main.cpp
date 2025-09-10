@@ -56,6 +56,7 @@ static void run()
             misses++;
             cache.put(key, key);
         }
+        std::cout << cache << std::endl;
     }
 
     std::cout << "Misses: " << misses << std::endl;

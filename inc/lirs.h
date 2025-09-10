@@ -11,7 +11,8 @@ const double LIR_PERCENTAGE = 0.7;
 enum class pageKey_t
 {
     LIR,
-    HIR
+    HIR,
+    NOTYPE
 };
 
 template <typename valType>
@@ -77,20 +78,31 @@ void LIRSCache<valType>::put(int key, const valType& value)
         return;
     }
 
-    if (hirs_.size() >= hirss_)
+    pageKey_t pageType = pageKey_t::NOTYPE;
+
+    if (lirs_.size() < lirss_)
     {
-        size_t evicted = hirs_.back();
-        hirs_.pop_back();
-        cache_.erase(evicted);
+        lirs_.push_front(key);
+        pageType = pageKey_t::LIR;
+    }
+    else
+    {
+        if (hirs_.size() >= hirss_)
+        {
+            size_t evicted = hirs_.back();
+            hirs_.pop_back();
+            cache_.erase(evicted);
+        }
+        hirs_.push_front(key);
+        pageType = pageKey_t::HIR;
     }
 
     // Add new element as HIR
-    cache_[key] = {value, pageKey_t::HIR};
-    hirs_.push_front(key);
+    cache_[key] = {value, pageType};
 }
 
-template <typename T>
-std::ostream& operator<<(std::ostream& os, const LIRSCache<T>& cache)
+template <typename valType>
+std::ostream& operator<<(std::ostream& os, const LIRSCache<valType>& cache)
 {
     os << "LIRS Cache State     Capacity: " << cache.c_ << std::endl;
     os << "                     LIRS: [ ";
