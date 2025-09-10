@@ -1,0 +1,9 @@
+main
+out
+build
+*.o
+.vscode/
+drawio/
+.venv/
+LIRSCache_task1/
+LIRSCache_task1.zip
