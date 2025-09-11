@@ -1,21 +1,10 @@
 #include "lirs.h"
 #include "cacheRendering.h"
-#include "tests.h"
-
 
 static void run();
 
 int main()
 {
-    // visual testing
-    // test1(); // Basic Operations
-    // test2(); // HIR to LIR Conversion
-    // test3(); // LIR Demotion
-    // test4(); // Frequency vs Recency
-    // std::cout << "All tests were printed." << std::endl;
-
-
-
     // Запуска собственного теста (как в задании) 
     run();
 

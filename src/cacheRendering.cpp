@@ -27,9 +27,9 @@ void generateData(const std::string& dataFile)
 
     srand (time(NULL));
 
-    for (size_t numOfKeys = 10; numOfKeys <= 1000; numOfKeys += 10)
+    for (size_t numOfKeys = 10; numOfKeys <= 2000; numOfKeys += 20)
     {
-        for (size_t keyDensity = 5; keyDensity < 100; keyDensity += 5)
+        for (size_t keyDensity = 5; keyDensity < 500; keyDensity += 20)
         {
             std::vector<size_t> misses;
             for (int i = 0; i < 10; i++)
