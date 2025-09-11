@@ -25,7 +25,7 @@ function(create_tests_from_pairs)
     file(GLOB TEST_FILES ${CMAKE_SOURCE_DIR}/tests/test*.dat)
 
     if(!TEST_FILES)
-        message("No test files found.")
+        message(WARNING "No test files found.")
         return()
     endif()
 
