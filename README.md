@@ -11,4 +11,4 @@
 </table>
 
 ## Performance
-- ![graph](imgs/LIRS_Cache_Performance.png)
+![graph](imgs/LIRS_Cache_Performance.png)
