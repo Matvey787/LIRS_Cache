@@ -1,4 +1,5 @@
 #include "lirs.h"
+#include "opt.h"
 #include "cacheRendering.h"
 
 static void run();
@@ -18,9 +19,17 @@ int main()
     // key density = (количество уникальных ключей / общее количество запросов) * 100%
 
 
+    // -------------------------- OPT cache testing --------------------------
+
+    // std::vector<int> test = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    // OPTCache opt(2, test);
+
+    // std::cout << "Hits: " << opt.get_hits() << std::endl;
+
+    // -----------------------------------------------------------------------
 
     // Генерация данных для сравнения с идеальным кэшем
-    // generateData();
+    // generateData("py/cacheData.txt", "py/OPTCacheData.txt");
 }
 
 static void run()

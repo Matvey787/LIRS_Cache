@@ -3,6 +3,7 @@
 
 #include <string>
 
-void generateData(const std::string& dataFile = "py/data.txt");
+void generateData(const std::string& cacheDataFile = "py/data.txt", 
+                  const std::string& OPTDataFile = "");
 
 #endif // CACHE_RENDERING_H

@@ -11,4 +11,6 @@
 </table>
 
 ## Performance
+Сравнение с "идеальным" (но в реальности неосуществимым) OPT (Optimal Page Replacemen) кэшем.
+
 ![graph](imgs/LIRS_Cache_Performance.png)

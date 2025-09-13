@@ -1,4 +1,5 @@
 #include "lirs.h"
+#include "opt.h"
 #include "cacheRendering.h"
 
 #include <vector>
@@ -9,44 +10,76 @@
 const double CACHE_SIZE_COEFF = 0.3; // cache size determined by this fraction of the number of keys
 
 static void generateKeys(std::vector<int>& keys, size_t numOfKeys = 50, size_t keyDensity = 4);
-static size_t getCacheMisses(const std::vector<int>& keys);
+static size_t getCacheHits(const std::vector<int>& keys);
 
 
-void generateData(const std::string& dataFile)
+void generateData(const std::string& cacheDataFile, const std::string& OPTDataFile)
 {
-    std::ofstream fileWriteTo(dataFile);
-    fileWriteTo << "misses numOfKeys keyDensity\n";
+    bool useOPT = false;
 
-    if (!fileWriteTo)
+    if (!OPTDataFile.empty()) { useOPT = true; }
+
+    std::ofstream cacheFile(cacheDataFile);
+    std::ofstream optCacheFile(OPTDataFile);
+
+    if (!cacheFile || (useOPT && !optCacheFile))
     {
         std::cerr << "Error opening/creating data file." << std::endl;
         return;
     }
 
+    cacheFile << "hits numOfKeys keyDensity\n";
+
+    if (useOPT) optCacheFile << "hits numOfKeys keyDensity\n";
+
     std::cout << "Generating data..." << std::endl;
 
     srand (time(NULL));
 
-    for (size_t numOfKeys = 10; numOfKeys <= 2000; numOfKeys += 20)
+
+    size_t maxNumberOfKeys = 2000;
+    size_t maxKeyDensity = 500;
+
+    for (size_t numOfKeys = 10; numOfKeys < maxNumberOfKeys; numOfKeys += 20)
     {
-        for (size_t keyDensity = 5; keyDensity < 500; keyDensity += 20)
+        for (size_t keyDensity = 5; keyDensity < maxKeyDensity; keyDensity += 20)
         {
-            std::vector<size_t> misses;
+            std::vector<size_t> LIRSHits;
+            std::vector<size_t> OPTHits;
             for (int i = 0; i < 10; i++)
             {
                 std::vector<int> keys;
                 generateKeys(keys, numOfKeys, keyDensity);
-                misses.push_back(getCacheMisses(keys));
+
+                LIRSHits.push_back(getCacheHits(keys));
+
+                if (useOPT)
+                {
+                    size_t optCacheCapasity = keys.size() * CACHE_SIZE_COEFF;
+                    OPTCache opt(optCacheCapasity, keys);
+                    size_t currOPTHits = opt.get_hits();
+                    OPTHits.push_back(currOPTHits);
+                }
             }
-            size_t missesAverage = std::accumulate(misses.begin(), misses.end(), 0) / misses.size();
-            fileWriteTo << missesAverage << " " << numOfKeys << " " << keyDensity << "\n";
+            size_t LIRSHitsSumm = std::accumulate(LIRSHits.begin(), LIRSHits.end(), 0);
+            size_t LIRSHitsAverage = LIRSHitsSumm / LIRSHits.size();
+            cacheFile << LIRSHitsAverage << " " << numOfKeys << " " << keyDensity << "\n";
+
+            if (useOPT)
+            {
+                size_t OPTHitsSumm = std::accumulate(OPTHits.begin(), OPTHits.end(), 0);
+                size_t OPTHitsAverage = OPTHitsSumm / OPTHits.size();
+                optCacheFile << OPTHitsAverage << " " << numOfKeys << " " << keyDensity << "\n";
+            }
         }
     }
     
 
-    fileWriteTo.close();
+    cacheFile.close();
 
-    std::cout << "Data generation complete. Results saved to " << dataFile << std::endl;
+    if (useOPT) optCacheFile.close();
+
+    std::cout << "Data generation complete. Results of cache saved to " << cacheDataFile << std::endl;
 }
 
 static void generateKeys(std::vector<int>& keys, size_t numOfKeys, size_t keyDensity)
@@ -59,18 +92,17 @@ static void generateKeys(std::vector<int>& keys, size_t numOfKeys, size_t keyDen
     }
 }
 
-static size_t getCacheMisses(const std::vector<int>& keys)
+static size_t getCacheHits(const std::vector<int>& keys)
 {
     LIRSCache<int> cache(keys.size() * CACHE_SIZE_COEFF);
-    size_t misses = 0;
+    size_t hits = 0;
 
     for (const auto& key : keys)
     {
-        if (cache.get(key) == nullptr)
-        {
-            misses++;
+        if (cache.get(key) != nullptr)
+            hits++;
+        else
             cache.put(key, key);
-        }
     }
-    return misses;
+    return hits;
 }
