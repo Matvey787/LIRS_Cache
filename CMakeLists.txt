@@ -2,6 +2,8 @@
 # ./build/lirs
 # cmake --build build --target clean
 # ctest --test-dir build -V
+# g++ -g -O2 -fno-omit-frame-pointer your_program.cpp -o your_program
+# -DCMAKE_BUILD_TYPE=RelWithDebInfo
 
 cmake_minimum_required(VERSION 3.11)
 project(LIRS_Cache CXX)

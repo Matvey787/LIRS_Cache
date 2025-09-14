@@ -15,6 +15,15 @@ enum class pageKey_t
     NOTYPE
 };
 
+
+template <typename valType>
+struct PageData_t
+{
+    valType value_;
+    pageKey_t type_;
+    typename std::list<int>::iterator listIter_;
+};
+
 template <typename valType>
 class LIRSCache {
 private:
@@ -23,7 +32,7 @@ private:
     size_t hirss_; // hirs size
     std::list<int> lirs_;
     std::list<int> hirs_;
-    std::unordered_map<int, std::pair<valType, pageKey_t>> cache_;
+    std::unordered_map<int, PageData_t<valType>> cache_;
 
 public:
     LIRSCache(size_t capacity) : c_(capacity)
@@ -42,48 +51,50 @@ public:
 template<typename valType>
 valType* LIRSCache<valType>::get(int key)
 {
-    if (cache_.find(key) == cache_.end()) return nullptr;
+    auto pageIter = cache_.find(key);
 
-    auto& page = cache_.at(key);
+    if (pageIter == cache_.end()) return nullptr;
 
-    if (page.second == pageKey_t::LIR) // LIRS case
+
+    if (pageIter->second.type_ == pageKey_t::LIR) // LIRS case
     {
-        lirs_.remove(key);
+        lirs_.erase(pageIter->second.listIter_);
         lirs_.push_front(key);
+        pageIter->second.listIter_ = lirs_.begin();
     }
     else // HIRS case
     {
-        hirs_.remove(key);
+        hirs_.erase(pageIter->second.listIter_);
         lirs_.push_front(key);
-        page.second = pageKey_t::LIR;
+        pageIter->second.type_ = pageKey_t::LIR;
+        pageIter->second.listIter_ = lirs_.begin();
 
         if (lirs_.size() > lirss_) // If lirs is crowded
         {
             auto& evicted = lirs_.back();
             lirs_.pop_back();
-            cache_.at(evicted).second = pageKey_t::HIR;
+            cache_.at(evicted).type_ = pageKey_t::HIR;
             hirs_.push_front(evicted);
         }
     }
-    return &page.first;
+    return &pageIter->second.value_;
 }
 
 template<typename valType>
 void LIRSCache<valType>::put(int key, const valType& value)
 {
-    if (cache_.find(key) != cache_.end()) // Can update existing
+    auto page = cache_.find(key);
+    if (page != cache_.end()) // Can update existing
     {
-        cache_.at(key).first = value;
+        page->second.value_ = value;
         get(key);
         return;
     }
 
-    pageKey_t pageType = pageKey_t::NOTYPE;
-
     if (lirs_.size() < lirss_)
     {
         lirs_.push_front(key);
-        pageType = pageKey_t::LIR;
+        cache_[key] = {value, pageKey_t::LIR, lirs_.begin()};
     }
     else
     {
@@ -94,11 +105,8 @@ void LIRSCache<valType>::put(int key, const valType& value)
             cache_.erase(evicted);
         }
         hirs_.push_front(key);
-        pageType = pageKey_t::HIR;
+        cache_[key] = {value, pageKey_t::HIR, hirs_.begin()};
     }
-
-    // Add new element as HIR
-    cache_[key] = {value, pageType};
 }
 
 template <typename valType>
