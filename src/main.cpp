@@ -3,6 +3,7 @@
 #include "cacheRendering.h"
 
 static void run();
+static size_t checkCache(const std::vector<int>& keys, size_t capacity);
 
 int main()
 {
@@ -36,8 +37,8 @@ static void run()
 {
     size_t capacity = 0;
     size_t numOfKeys = 0;
-    size_t hits = 0;
     int key = 0;
+    std::vector<int> keys;
 
 
     // std::cout << "Enter [cache capacity] [number of keys] <keys>" << std::endl;
@@ -48,17 +49,30 @@ static void run()
     for (size_t i = 1; i <= numOfKeys; ++i)
     {
         std::cin >> key;
-
-        if (cache.get(key) != nullptr)
-        {
-            hits++;
-        }
-        else
-        {
-            cache.put(key, key);
-        }   
+        keys.push_back(key);
     }
 
     // std::cout << "Hits: " << hits << std::endl;
-    std::cout << hits << std::endl;
+    std::cout << checkCache(keys, capacity) << std::endl;
+}
+
+static size_t checkCache(const std::vector<int>& keys, size_t capacity)
+{
+    size_t hits = 0;
+
+#ifdef OPT_M
+    OPTCache cache(capacity, keys);
+    hits = cache.get_hits();
+#else
+    LIRSCache<int> cache(capacity);
+    for (int key : keys)
+    {
+        if (cache.get(key) != nullptr)
+            hits++;
+        else
+            cache.put(key, key);
+    }
+#endif
+
+    return hits;
 }

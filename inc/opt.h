@@ -11,7 +11,9 @@ class OPTCache
 {
 public:
 
-    OPTCache (size_t capasity, std::vector<int>& requests) : c_(capasity), requests_(requests) 
+    OPTCache (const size_t capasity, const std::vector<int>& requests) : 
+        c_(capasity),
+        requests_(requests) 
     {
         // looking into the future
         for(size_t i = 0; i < requests.size(); i++)
@@ -34,6 +36,7 @@ public:
             else
                 put(currKey, i);
 
+            
             update_keysFutureOccurrs(currKey);
         }
 

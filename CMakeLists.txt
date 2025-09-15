@@ -1,4 +1,6 @@
-# cmake -S . -B build && cmake --build build
+# cmake -S . -B build && cmake --build build                work with LIRS
+# cmake -S . -DOPT_M=ON -B build && cmake --build build     work with OPT
+
 # ./build/lirs
 # cmake --build build --target clean
 # ctest --test-dir build -V
@@ -11,6 +13,8 @@ project(LIRS_Cache CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+option(OPT_M "Activate and work with OPT Cache (ideal cache)" OFF)
+
 include_directories(${CMAKE_SOURCE_DIR}/inc)
 
 set(SOURCE_FILES
@@ -18,7 +22,17 @@ set(SOURCE_FILES
     src/cacheRendering.cpp
 )
 
-add_executable(lirs ${SOURCE_FILES})
+if (OPT_M)
+    SET(EXEC_FILE_NAME "opt")
+else()
+    SET(EXEC_FILE_NAME "lirs")
+endif()
+
+add_executable(${EXEC_FILE_NAME} ${SOURCE_FILES})
+
+if (OPT_M)
+    target_compile_definitions(${EXEC_FILE_NAME} PRIVATE OPT_M)
+endif()
 
 include(CTest)
 enable_testing()
@@ -43,7 +57,7 @@ function(create_tests_from_pairs)
             string(STRIP "${EXPECTED_OUTPUT}" EXPECTED_OUTPUT)
             
             add_test(NAME test_${TEST_NUMBER}
-                COMMAND bash -c "../build/lirs < test${TEST_NUMBER}.dat"
+                COMMAND bash -c "../build/${EXEC_FILE_NAME} < test${TEST_NUMBER}.dat"
                 WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/tests
             )
             
