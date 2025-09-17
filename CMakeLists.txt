@@ -1,5 +1,4 @@
-# cmake -S . -B build && cmake --build build                work with LIRS
-# cmake -S . -DOPT_M=ON -B build && cmake --build build     work with OPT
+# cmake -S . -B build && cmake --build build
 
 # ./build/lirs
 # cmake --build build --target clean
@@ -13,40 +12,30 @@ project(LIRS_Cache CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-option(OPT_M "Activate and work with OPT Cache (ideal cache)" OFF)
-
 include_directories(${CMAKE_SOURCE_DIR}/inc)
 
-set(SOURCE_FILES
+set(COMMON_SOURCE_FILES
     src/main.cpp
     src/cacheRendering.cpp
 )
 
-if (OPT_M)
-    SET(EXEC_FILE_NAME "opt")
-else()
-    SET(EXEC_FILE_NAME "lirs")
-endif()
+add_executable(lirs ${COMMON_SOURCE_FILES})
 
-add_executable(${EXEC_FILE_NAME} ${SOURCE_FILES})
-
-if (OPT_M)
-    target_compile_definitions(${EXEC_FILE_NAME} PRIVATE OPT_M)
-endif()
+add_executable(opt ${COMMON_SOURCE_FILES})
+target_compile_definitions(opt PRIVATE OPT_M)
 
 include(CTest)
 enable_testing()
 
-function(create_tests_from_pairs)
+function(create_tests_for_target TARGET_NAME)
     file(GLOB TEST_FILES ${CMAKE_SOURCE_DIR}/tests/test*.dat)
 
-    if(!TEST_FILES)
+    if(NOT TEST_FILES)
         message(WARNING "No test files found.")
         return()
     endif()
 
     foreach(TEST_FILE ${TEST_FILES})
-
         get_filename_component(TEST_NAME ${TEST_FILE} NAME_WE)
         string(REGEX REPLACE "^test" "" TEST_NUMBER ${TEST_NAME})
         
@@ -56,12 +45,12 @@ function(create_tests_from_pairs)
             file(READ ${ANS_FILE} EXPECTED_OUTPUT)
             string(STRIP "${EXPECTED_OUTPUT}" EXPECTED_OUTPUT)
             
-            add_test(NAME test_${TEST_NUMBER}
-                COMMAND bash -c "../build/${EXEC_FILE_NAME} < test${TEST_NUMBER}.dat"
+            add_test(NAME ${TARGET_NAME}_test_${TEST_NUMBER}
+                COMMAND bash -c "../build/${TARGET_NAME} < test${TEST_NUMBER}.dat"
                 WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/tests
             )
             
-            set_tests_properties(test_${TEST_NUMBER} PROPERTIES
+            set_tests_properties(${TARGET_NAME}_test_${TEST_NUMBER} PROPERTIES
                 PASS_REGULAR_EXPRESSION "^${EXPECTED_OUTPUT}([ \t\n\r]|$)"
             )
         else()
@@ -70,4 +59,5 @@ function(create_tests_from_pairs)
     endforeach()
 endfunction()
 
-create_tests_from_pairs()
+create_tests_for_target(lirs)
+create_tests_for_target(opt)

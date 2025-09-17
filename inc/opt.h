@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <vector>
 #include <set>
+#include <unordered_set>
 #include <limits>
 
 class OPTCache
@@ -15,6 +16,7 @@ public:
         c_(capasity),
         requests_(requests) 
     {
+        cache_.reserve(c_);
         // looking into the future
         for(size_t i = 0; i < requests.size(); i++)
         {
@@ -46,7 +48,7 @@ public:
 
 private:
     size_t c_;
-    std::set<int> cache_;
+    std::unordered_set<int> cache_;
     std::vector<int> requests_;
     std::unordered_map<int, std::vector<size_t>> keysFutureOccurrs_;
 
@@ -66,7 +68,7 @@ private:
         {
             cache_.insert(key);
         }
-        else
+        else if (keysFutureOccurrs_.find(key)->second.size() > 1)
         {
             int victim = findVictim(keyIndex);
             cache_.erase(victim);
