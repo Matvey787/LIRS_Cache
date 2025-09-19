@@ -3,26 +3,21 @@
 
 #include <iostream>
 #include <unordered_map>
-#include <vector>
-#include <set>
 #include <unordered_set>
+#include <vector>
+#include <deque>
 #include <limits>
 
 class OPTCache
 {
 public:
-
-    OPTCache (const size_t capasity, const std::vector<int>& requests) : 
-        c_(capasity),
-        requests_(requests) 
+    OPTCache(size_t capacity, const std::vector<int>& requests)
+        : c_(capacity), requests_(requests)
     {
-        cache_.reserve(c_);
-        // looking into the future
-        for(size_t i = 0; i < requests.size(); i++)
-        {
-            int currKey = requests[i];
-            keysFutureOccurrs_[currKey].push_back(i);
-        }
+        keysFutureOccurrs_.reserve(requests.size());
+
+        for (size_t i = 0; i < requests.size(); i++)
+            keysFutureOccurrs_[requests[i]].push_back(i);
     }
 
     size_t get_hits()
@@ -33,68 +28,56 @@ public:
         {
             int currKey = requests_[i];
 
-            if (get(currKey))
-                ++hits;
-            else
-                put(currKey, i);
+            bool isKeyInCache = cache_.count(currKey);
 
-            
+            if (isKeyInCache)
+                ++hits;
+
             update_keysFutureOccurrs(currKey);
+
+            if (!isKeyInCache && getNextUseIndex(currKey) != std::numeric_limits<size_t>::max())
+                put(currKey);
         }
 
         return hits;
     }
-    
 
 private:
     size_t c_;
     std::unordered_set<int> cache_;
     std::vector<int> requests_;
-    std::unordered_map<int, std::vector<size_t>> keysFutureOccurrs_;
-
-
-
-    bool get(int key)
-    {
-        if (cache_.find(key) != cache_.end())
-            return true;
-        else
-            return false;
-    }
-
-    void put(int key, size_t keyIndex)
+    std::unordered_map<int, std::deque<size_t>> keysFutureOccurrs_;
+    
+    void put(int key)
     {
         if (cache_.size() < c_)
         {
             cache_.insert(key);
         }
-        else if (keysFutureOccurrs_.find(key)->second.size() > 1)
+        else
         {
-            int victim = findVictim(keyIndex);
+            int victim = findVictim();
             cache_.erase(victim);
             cache_.insert(key);
         }
     }
 
-    int findVictim(size_t keyIndex) {
+    int findVictim()
+    {
         int victim = -1;
         size_t farthestUse = 0;
 
-        for (int key : cache_)
+        for (int k : cache_)
         {
-            size_t nextUse = getNextUseIndex(key);
-            
-            // this key will never be there again
+            size_t nextUse = getNextUseIndex(k);
+
             if (nextUse == std::numeric_limits<size_t>::max())
-            {
-                return key;
-            }
-            
-            // we use the furthest key
+                return k;
+
             if (nextUse > farthestUse)
             {
                 farthestUse = nextUse;
-                victim = key;
+                victim = k;
             }
         }
 
@@ -104,22 +87,16 @@ private:
     size_t getNextUseIndex(int key)
     {
         auto it = keysFutureOccurrs_.find(key);
-
         if (it == keysFutureOccurrs_.end() || it->second.empty())
-        {
             return std::numeric_limits<size_t>::max();
-        }
-        return it->second[0];
+        return it->second.front();
     }
 
     void update_keysFutureOccurrs(int key)
     {
         auto it = keysFutureOccurrs_.find(key);
         if (it != keysFutureOccurrs_.end() && !it->second.empty())
-        {
-            auto oldKeyUsage = it->second.begin();
-            it->second.erase(oldKeyUsage);
-        }
+            it->second.pop_front();
     }
 };
 

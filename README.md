@@ -11,11 +11,13 @@
 </table>
 
 ## Performance
+
 Сравнение с "идеальным" (но в реальности неосуществимым) OPT (Optimal Page Replacemen) кэшем.
 
 ![graph](imgs/LIRS_Cache_Performance.png)
 
-## Оптимизация
+## Оптимизация LIRS хеша
+
 Заходим в `Intel VTune Profiler`  
 ![vtune start](imgs/vtuneStart.png)
 
@@ -51,3 +53,28 @@ struct PageData_t
 
 Имеем:
 ![with opt](imgs/withOpt.png)
+
+## Оптимизация OPT хеша
+
+На большой тест изначально имеем: 
+![alt text](imgs/opt_perf1.png)
+
+При удалении первого элемента (erase(begin())) из vector приходится сдвигать все остальные элементы,
+сдвиг памти - долго.
+Меняем
+
+```cpp
+std::unordered_map<int, std::vector<size_t>> keysFutureOccurrs_;
+```
+
+На
+
+```cpp
+std::unordered_map<int, std::deque<size_t>> keysFutureOccurrs_;
+```
+
+Берем `std::deque` для быстрого доступа к следующему вызову по данному ключу, быстрое удаление в конце (благодаря двусторонней очереди)
+
+Имеем
+
+![alt text](imgs/opt_perf2.png)
