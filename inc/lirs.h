@@ -61,9 +61,7 @@ template<typename valType>
 valType* LIRSCache<valType>::get(int key)
 {
     auto pageIter = cache_.find(key);
-
     if (pageIter == cache_.end()) return nullptr;
-
 
     if (pageIter->second.type_ == pageKey_t::LIR) // LIRS case
     {
@@ -73,18 +71,23 @@ valType* LIRSCache<valType>::get(int key)
     }
     else // HIRS case
     {
-        hirs_.erase(pageIter->second.listIter_);
+        
+        if (pageIter->second.listIter_ != hirs_.end()) {
+            hirs_.erase(pageIter->second.listIter_);
+        }
+        
         lirs_.push_front(key);
         pageIter->second.type_ = pageKey_t::LIR;
         pageIter->second.listIter_ = lirs_.begin();
 
         if (lirs_.size() > lirss_) // If lirs is crowded
         {
-            auto& evicted = lirs_.back();
+            int evicted = lirs_.back();  
+            lirs_.pop_back();
+            
             cache_.at(evicted).type_ = pageKey_t::HIR;
             hirs_.push_front(evicted);
-            cache_.at(evicted).listIter_ = hirs_.begin();
-            lirs_.pop_back();
+            cache_.at(evicted).listIter_ = hirs_.begin();  
         }
     }
     return &pageIter->second.value_;
@@ -105,25 +108,28 @@ void LIRSCache<valType>::put(int key, const valType& value)
     {
         nrhirs_.erase(nrhirs_keyIter);
         lirs_.push_front(key);
+        cache_[key] = {value, pageKey_t::LIR, lirs_.begin()};  
+        
         if (lirs_.size() > lirss_) // If lirs is crowded
         {
-            auto& evicted = lirs_.back();
+            int evicted = lirs_.back();  
+            lirs_.pop_back();
+            
             cache_.at(evicted).type_ = pageKey_t::HIR;
             hirs_.push_front(evicted);
-            lirs_.pop_back();
+            cache_.at(evicted).listIter_ = hirs_.begin();  
         }
 
+        
         if (hirs_.size() >= hirss_)
         {
-            size_t evicted = hirs_.back();
+            int evicted = hirs_.back();  
             cache_.erase(evicted);
             hirs_.pop_back();
 
-            nrhirs_.push_front(key);
+            nrhirs_.push_front(evicted);  
             if (nrhirs_.size() > nrhirss_) nrhirs_.pop_back();
-
         }
-        cache_[key] = {value, pageKey_t::LIR, lirs_.begin()};
     }
     else if (lirs_.size() < lirss_)
     {
@@ -134,12 +140,11 @@ void LIRSCache<valType>::put(int key, const valType& value)
     {
         if (hirs_.size() >= hirss_)
         {
-            size_t evicted = hirs_.back();
+            int evicted = hirs_.back();  
             cache_.erase(evicted);
             hirs_.pop_back();
 
-            nrhirs_.push_front(key);
-
+            nrhirs_.push_front(evicted);  
             if (nrhirs_.size() > nrhirss_) nrhirs_.pop_back();
         }
         hirs_.push_front(key);
