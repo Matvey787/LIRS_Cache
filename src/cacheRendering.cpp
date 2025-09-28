@@ -41,7 +41,7 @@ void generateData(const std::string& cacheDataFile, const std::string& OPTDataFi
     size_t maxNumberOfKeys = 2000;
     size_t maxKeyDensity = 500;
 
-    for (size_t numOfKeys = 10; numOfKeys < maxNumberOfKeys; numOfKeys += 20)
+    for (size_t numOfKeys = 50; numOfKeys < maxNumberOfKeys; numOfKeys += 20)
     {
         for (size_t keyDensity = 5; keyDensity < maxKeyDensity; keyDensity += 20)
         {
@@ -102,7 +102,7 @@ static void generateKeys(std::vector<int>& keys, size_t keyDensity)
 
 static size_t getCacheHits(const std::vector<int>& keys)
 {
-    LIRSCache<int> cache(keys.size() * CACHE_SIZE_COEFF);
+    LIRSCache<int> cache(keys.capacity() * CACHE_SIZE_COEFF);
     size_t hits = 0;
 
     for (const auto& key : keys)
