@@ -16,7 +16,6 @@ include_directories(${CMAKE_SOURCE_DIR}/inc)
 
 set(COMMON_SOURCE_FILES
     src/main.cpp
-    src/cacheRendering.cpp
 )
 
 add_executable(lirs ${COMMON_SOURCE_FILES})
@@ -24,11 +23,14 @@ add_executable(lirs ${COMMON_SOURCE_FILES})
 add_executable(opt ${COMMON_SOURCE_FILES})
 target_compile_definitions(opt PRIVATE OPT_M)
 
+add_executable(rendering ${COMMON_SOURCE_FILES} src/cacheRendering.cpp)
+target_compile_definitions(rendering PRIVATE CACHE_RENDER_M)
+
 include(CTest)
 enable_testing()
 
-function(create_tests_for_target TARGET_NAME)
-    file(GLOB TEST_FILES ${CMAKE_SOURCE_DIR}/tests/test*.dat)
+function(create_tests_for_target TARGET_NAME FOLDER_WITH_TESTS)
+    file(GLOB TEST_FILES ${FOLDER_WITH_TESTS}/test*.dat)
 
     if(NOT TEST_FILES)
         message(WARNING "No test files found.")
@@ -38,16 +40,16 @@ function(create_tests_for_target TARGET_NAME)
     foreach(TEST_FILE ${TEST_FILES})
         get_filename_component(TEST_NAME ${TEST_FILE} NAME_WE)
         string(REGEX REPLACE "^test" "" TEST_NUMBER ${TEST_NAME})
-        
-        set(ANS_FILE ${CMAKE_SOURCE_DIR}/tests/ans${TEST_NUMBER}.dat)
-        
+
+        set(ANS_FILE ${FOLDER_WITH_TESTS}/ans${TEST_NUMBER}.dat)
+
         if(EXISTS ${ANS_FILE})
             file(READ ${ANS_FILE} EXPECTED_OUTPUT)
             string(STRIP "${EXPECTED_OUTPUT}" EXPECTED_OUTPUT)
             
             add_test(NAME ${TARGET_NAME}_test_${TEST_NUMBER}
-                COMMAND bash -c "../build/${TARGET_NAME} < test${TEST_NUMBER}.dat"
-                WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/tests
+                COMMAND bash -c "build/${TARGET_NAME} < ${FOLDER_WITH_TESTS}/test${TEST_NUMBER}.dat"
+                WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
             )
             
             set_tests_properties(${TARGET_NAME}_test_${TEST_NUMBER} PROPERTIES
@@ -59,5 +61,5 @@ function(create_tests_for_target TARGET_NAME)
     endforeach()
 endfunction()
 
-create_tests_for_target(lirs)
-create_tests_for_target(opt)
+create_tests_for_target(lirs ${CMAKE_SOURCE_DIR}/tests/lirs)
+create_tests_for_target(opt ${CMAKE_SOURCE_DIR}/tests/opt)

@@ -6,11 +6,14 @@
 #include <numeric>
 #include <fstream>
 #include <random>
+#include <algorithm>
 
 const double CACHE_SIZE_COEFF = 0.3; // cache size determined by this fraction of the number of keys
+const size_t MINIMAL_KEY = 5;
 
-static void generateKeys(std::vector<int>& keys, size_t numOfKeys = 50, size_t keyDensity = 4);
+static void generateKeys(std::vector<int>& keys, size_t keyDensity = 4);
 static size_t getCacheHits(const std::vector<int>& keys);
+
 
 
 void generateData(const std::string& cacheDataFile, const std::string& OPTDataFile)
@@ -34,8 +37,6 @@ void generateData(const std::string& cacheDataFile, const std::string& OPTDataFi
 
     std::cout << "Generating data..." << std::endl;
 
-    srand (time(NULL));
-
 
     size_t maxNumberOfKeys = 2000;
     size_t maxKeyDensity = 500;
@@ -49,7 +50,8 @@ void generateData(const std::string& cacheDataFile, const std::string& OPTDataFi
             for (int i = 0; i < 10; i++)
             {
                 std::vector<int> keys;
-                generateKeys(keys, numOfKeys, keyDensity);
+                keys.reserve(numOfKeys);
+                generateKeys(keys, keyDensity);
 
                 LIRSHits.push_back(getCacheHits(keys));
 
@@ -82,13 +84,19 @@ void generateData(const std::string& cacheDataFile, const std::string& OPTDataFi
     std::cout << "Data generation complete. Results of cache saved to " << cacheDataFile << std::endl;
 }
 
-static void generateKeys(std::vector<int>& keys, size_t numOfKeys, size_t keyDensity)
+static void generateKeys(std::vector<int>& keys, size_t keyDensity)
 {
-    int maxKey = static_cast<int>(numOfKeys * keyDensity / 100);
-    for (int i = 0; i < numOfKeys; i++)
+    size_t maxKeyWanted = (double)keys.capacity() * keyDensity / 100;
+    size_t maxKey = std::max(MINIMAL_KEY, maxKeyWanted);
+
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<int> dist(0, maxKey);
+
+    for (size_t i = 0; i < keys.capacity(); i++)
     {
-        int key = static_cast<int>((double)rand() * maxKey / RAND_MAX);
-        keys.push_back(key);
+        int key = dist(gen);
+        keys[i] = key;
     }
 }
 
