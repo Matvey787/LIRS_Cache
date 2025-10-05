@@ -79,10 +79,10 @@ static size_t checkCache(const std::vector<int>& keys, size_t capacity)
     size_t hits = 0;
 
     #ifdef OPT_M
-        OPTCache cache(capacity, keys);
+        OPT::OPTCache cache(capacity, keys);
         hits = cache.get_hits();
     #else
-        LIRSCache<int> cache(capacity);
+        LIRS::LIRSCache<int, int> cache(capacity);
         for (int key : keys)
         {
             if (cache.get(key) != nullptr)

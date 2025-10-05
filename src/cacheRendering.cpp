@@ -59,7 +59,7 @@ void generateData(const std::string& cacheDataFile, const std::string& OPTDataFi
                 if (useOPT)
                 {
                     size_t optCacheCapasity = keys.size() * CACHE_SIZE_COEFF;
-                    OPTCache opt(optCacheCapasity, keys);
+                    OPT::OPTCache opt(optCacheCapasity, keys);
                     size_t currOPTHits = opt.get_hits();
                     OPTHits.push_back(currOPTHits);
                 }
@@ -97,42 +97,20 @@ static void generateKeys(std::vector<int>& keys, size_t keyDensity)
     }
 }
 
-// static void generateKeys(std::vector<int>& keys, size_t keyDensity)
-// {
-//     size_t maxKeyWanted = (double)keys.capacity() * keyDensity / 100;
-//     size_t maxKey = std::max(MINIMAL_KEY, maxKeyWanted);
-
-//     std::random_device rd;
-//     std::mt19937 gen(rd());
-//     std::uniform_int_distribution<int> dist(0, maxKey);
-
-//     for (size_t i = 0; i < keys.capacity(); i++)
-//     {
-//         int key = dist(gen);
-//         keys[i] = key;
-//     }
-// }
-
 static size_t getCacheHits(const std::vector<int>& keys)
 {
-    LIRSCache<int> cache(keys.size() * CACHE_SIZE_COEFF);
+    LIRS::LIRSCache<int> cache(keys.size() * CACHE_SIZE_COEFF);
     size_t hits = 0;
 
-    // std::cout << "here58" << keys.size()<< std::endl;
     for (const auto key : keys)
     {
-        // std::cout << "here888 " << key << std::endl;
         if (cache.get(key) != nullptr){
-            // std::cout << "here70" << std::endl;
             hits++;
         }
         else
         {
-            // std::cout << "here71" << std::endl;
             cache.put(key, key);
-            // std::cout << "here72" << std::endl;
         }
     }
-    // std::cout << "here59" << std::endl;
     return hits;
 }

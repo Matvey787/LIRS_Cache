@@ -1,6 +1,7 @@
 #ifndef OPT_H
 #define OPT_H
 
+
 #include <iostream>
 #include <unordered_map>
 #include <unordered_set>
@@ -8,6 +9,7 @@
 #include <deque>
 #include <limits>
 
+namespace OPT {
 class OPTCache
 {
 public:
@@ -99,5 +101,7 @@ private:
             it->second.pop_front();
     }
 };
+
+} // namespace OPT
 
 #endif // OPT_H

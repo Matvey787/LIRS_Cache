@@ -1,3 +1,20 @@
+# [5.10.2025] Cleanup overall code structure
+
+1. **Problem [lirs.h:85]:** желательно пометить evicted как const, так как он не модифицируется, аналогично и в других местах: `int evict   ed = lirs_.back();`
+**Decision:** Поправил
+
+2. **Problem [lirs.h:29]:** можем ли мы сделать тип ключа также шаблонным, пример есть [тут](https://github.com/tilir/cpp-graduate/blob/master/01-basics/cache.hpp#L20)
+**Decision:** Поправил
+
+3. **Problem [lirs.h:179]:** git сохранит всю нужную историю и позволит откатить файл к нужной ревизии, поэтому ненужный код лучше не оставлять закомментированным. Стоит пройтись по всему репозиторию
+**Decision:** Чистим файлы
+
+4. **Problem []:** Стоит использовать namespace для кэшей
+**Decision:** Поправил
+
+5. **Problem []:** Можно изучить возможность увеличить производительность кэша, если ускорить поиск вытесняемого элемента (возможно, сортировать элементы в кэше по NextUse)
+**Decision:** --- will come later)
+
 # [27.09.2025] Bug fixes, algorithm cleanup, and overall code structure  
 
 1. **Problem [lirs.h:74]:**  evicted является ссылкой на последний элемент lirs_, после pop_back ссылка провисает  
