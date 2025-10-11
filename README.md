@@ -16,7 +16,7 @@
 
 ![graph](imgs/LIRS_Cache_Performance.png)
 
-## Оптимизация LIRS хеша
+## Оптимизация LIRS кеша
 
 Заходим в `Intel VTune Profiler`  
 ![vtune start](imgs/vtuneStart.png)
@@ -54,7 +54,7 @@ struct PageData_t
 Имеем:
 ![with opt](imgs/withOpt.png)
 
-## Оптимизация OPT хеша
+## Оптимизация OPT кеша
 
 На большой тест изначально имеем: 
 ![alt text](imgs/opt_perf1.png)
