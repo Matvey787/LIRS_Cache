@@ -10,27 +10,30 @@
 #include <optional>
 #include <algorithm>
 
-const double LIR_PERCENTAGE = 0.7;
-
-enum class pageKey_t
-{
-    LIR,
-    HIR,
-    NRHIR
-};
-
 namespace LIRS {
-template <typename valType>
-struct PageData_t
-{
-    valType value_;
-    pageKey_t type_;
-    typename std::list<int>::iterator listIter_;
-};
+
+namespace detail {
+    const double LIR_PERCENTAGE = 0.7;
+
+    enum class pageKey_t
+    {
+        LIR,
+        HIR,
+        NRHIR
+    };
+}
+
 
 template <typename valType, typename keyType = int>
 class LIRSCache {
-private:
+
+    struct PageData_t
+    {
+        valType value_;
+        detail::pageKey_t type_;
+        typename std::list<keyType>::iterator listIter_;
+    };
+
     size_t c_; // capacity of the cache
     size_t lirss_; // lirs size
     size_t hirss_; // hirs size
@@ -38,7 +41,7 @@ private:
     std::list<keyType> lirs_;
     std::list<keyType> hirs_;
     std::list<keyType> nrhirs_;
-    std::unordered_map<keyType, PageData_t<valType>> cache_;
+    std::unordered_map<keyType, PageData_t> cache_;
 
 public:
     LIRSCache(size_t capacity) : c_(capacity)
@@ -47,7 +50,7 @@ public:
         {
             throw std::invalid_argument("Cache capacity must be greater than 0");
         }
-        lirss_ = static_cast<size_t>(c_ * LIR_PERCENTAGE);
+        lirss_ = static_cast<size_t>(c_ * detail::LIR_PERCENTAGE);
         hirss_ = c_ - lirss_;
         nrhirss_ = c_;
     }
@@ -65,7 +68,7 @@ valType* LIRSCache<valType, keyType>::get(keyType key)
     auto pageIter = cache_.find(key);
     if (pageIter == cache_.end()) return nullptr;
 
-    if (pageIter->second.type_ == pageKey_t::LIR) // LIRS case
+    if (pageIter->second.type_ == detail::pageKey_t::LIR) // LIRS case
     {
         lirs_.erase(pageIter->second.listIter_);
         lirs_.push_front(key);
@@ -79,7 +82,7 @@ valType* LIRSCache<valType, keyType>::get(keyType key)
         }
         
         lirs_.push_front(key);
-        pageIter->second.type_ = pageKey_t::LIR;
+        pageIter->second.type_ = detail::pageKey_t::LIR;
         pageIter->second.listIter_ = lirs_.begin();
 
         if (lirs_.size() > lirss_) // If lirs is crowded
@@ -87,7 +90,7 @@ valType* LIRSCache<valType, keyType>::get(keyType key)
             const int evicted = lirs_.back();
             lirs_.pop_back();
             
-            cache_.at(evicted).type_ = pageKey_t::HIR;
+            cache_.at(evicted).type_ = detail::pageKey_t::HIR;
             hirs_.push_front(evicted);
             cache_.at(evicted).listIter_ = hirs_.begin();  
         }
@@ -110,14 +113,14 @@ void LIRSCache<valType, keyType>::put(keyType key, const valType& value)
     {
         nrhirs_.erase(nrhirs_keyIter);
         lirs_.push_front(key);
-        cache_[key] = {value, pageKey_t::LIR, lirs_.begin()};  
+        cache_[key] = {value, detail::pageKey_t::LIR, lirs_.begin()};  
         
         if (lirs_.size() > lirss_) // If lirs is crowded
         {
             const int evicted = lirs_.back();
             lirs_.pop_back();
             
-            cache_.at(evicted).type_ = pageKey_t::HIR;
+            cache_.at(evicted).type_ = detail::pageKey_t::HIR;
             hirs_.push_front(evicted);
             cache_.at(evicted).listIter_ = hirs_.begin();  
         }
@@ -136,7 +139,7 @@ void LIRSCache<valType, keyType>::put(keyType key, const valType& value)
     else if (lirs_.size() < lirss_)
     {
         lirs_.push_front(key);
-        cache_[key] = {value, pageKey_t::LIR, lirs_.begin()};
+        cache_[key] = {value, detail::pageKey_t::LIR, lirs_.begin()};
     }
     else
     {
@@ -150,7 +153,7 @@ void LIRSCache<valType, keyType>::put(keyType key, const valType& value)
             if (nrhirs_.size() > nrhirss_) nrhirs_.pop_back();
         }
         hirs_.push_front(key);
-        cache_[key] = {value, pageKey_t::HIR, hirs_.begin()};
+        cache_[key] = {value, detail::pageKey_t::HIR, hirs_.begin()};
     }
 }
 

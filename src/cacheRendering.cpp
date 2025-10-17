@@ -8,13 +8,16 @@
 #include <random>
 #include <algorithm>
 
-const double CACHE_SIZE_COEFF = 0.3; // cache size determined by this fraction of the number of keys
-const size_t MINIMAL_KEY = 5;
+namespace Rendering {
 
-static void generateKeys(std::vector<int>& keys, size_t keyDensity = 4);
-static size_t getCacheHits(const std::vector<int>& keys);
+namespace detail {
+    // cache size determined by this fraction of the number of keys
+    const double CACHE_SIZE_COEFF = 0.3; 
+    const size_t MINIMAL_KEY = 5;
 
-
+    void generateKeys(std::vector<int>& keys, size_t keyDensity = 4);
+    size_t getCacheHits(const std::vector<int>& keys);
+}
 
 void generateData(const std::string& cacheDataFile, const std::string& OPTDataFile)
 {
@@ -52,13 +55,13 @@ void generateData(const std::string& cacheDataFile, const std::string& OPTDataFi
             {
                 std::vector<int> keys;
                 keys.reserve(numOfKeys);
-                generateKeys(keys, keyDensity);
-                
-                LIRSHits.push_back(getCacheHits(keys));
-                
+                detail::generateKeys(keys, keyDensity);
+
+                LIRSHits.push_back(detail::getCacheHits(keys));
+
                 if (useOPT)
                 {
-                    size_t optCacheCapasity = keys.size() * CACHE_SIZE_COEFF;
+                    size_t optCacheCapasity = keys.size() * detail::CACHE_SIZE_COEFF;
                     OPT::OPTCache opt(optCacheCapasity, keys);
                     size_t currOPTHits = opt.get_hits();
                     OPTHits.push_back(currOPTHits);
@@ -87,7 +90,7 @@ void generateData(const std::string& cacheDataFile, const std::string& OPTDataFi
     std::cout << "Data generation complete. Results of cache saved to " << cacheDataFile << std::endl;
 }
 
-static void generateKeys(std::vector<int>& keys, size_t keyDensity)
+void detail::generateKeys(std::vector<int>& keys, size_t keyDensity)
 {
     int maxKey = static_cast<int>(keys.capacity() * keyDensity / 100);
     for (int i = 0; i < keys.capacity(); i++)
@@ -97,7 +100,7 @@ static void generateKeys(std::vector<int>& keys, size_t keyDensity)
     }
 }
 
-static size_t getCacheHits(const std::vector<int>& keys)
+size_t detail::getCacheHits(const std::vector<int>& keys)
 {
     LIRS::LIRSCache<int> cache(keys.size() * CACHE_SIZE_COEFF);
     size_t hits = 0;
@@ -114,3 +117,4 @@ static size_t getCacheHits(const std::vector<int>& keys)
     }
     return hits;
 }
+} // namespace Rendering

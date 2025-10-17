@@ -2,8 +2,13 @@
 #define CACHE_RENDERING_H
 
 #include <string>
+#include <vector>
 
-void generateData(const std::string& cacheDataFile = "py/data.txt", 
-                  const std::string& OPTDataFile = "");
+namespace Rendering {
+
+    void generateData(const std::string& cacheDataFile = "py/data.txt", 
+                      const std::string& OPTDataFile = "");
+}
+
 
 #endif // CACHE_RENDERING_H

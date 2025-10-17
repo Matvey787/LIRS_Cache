@@ -28,7 +28,7 @@ int main()
 
         // Генерация данных для сравнения с идеальным кэшем
         #ifdef CACHE_RENDER_M
-            generateData("py/cacheData.txt", "py/OPTCacheData.txt");
+            Rendering::generateData("py/cacheData.txt", "py/OPTCacheData.txt");
         #else
             // Запуска собственного теста (как в задании)
             run();

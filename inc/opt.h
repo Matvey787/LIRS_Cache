@@ -59,6 +59,9 @@ private:
         else
         {
             int victim = findVictim();
+
+            if (victim == -1) return;
+            
             cache_.erase(victim);
             cache_.insert(key);
         }
