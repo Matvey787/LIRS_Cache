@@ -1,5 +1,7 @@
 #include <vector>
 #include <iostream>
+#include <thread>
+#include <chrono>
 
 #if defined(OPT_M)
 #include "opt.h"
@@ -74,6 +76,13 @@ static void run()
     std::cout << checkCache(keys, capacity) << std::endl;
 }
 
+template<typename keyType>
+keyType slow_get_page(keyType key)
+{
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    return key;
+}
+
 static size_t checkCache(const std::vector<int>& keys, size_t capacity)
 {
     size_t hits = 0;
@@ -91,7 +100,7 @@ static size_t checkCache(const std::vector<int>& keys, size_t capacity)
             }
             else
             {
-                cache.put(key, key);
+                cache.put(key, slow_get_page(key));
             }
         }
     #endif

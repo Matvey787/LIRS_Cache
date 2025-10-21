@@ -87,7 +87,7 @@ valType* LIRSCache<valType, keyType>::get(keyType key)
 
         if (lirs_.size() > lirss_) // If lirs is crowded
         {
-            const int evicted = lirs_.back();
+            const keyType evicted = lirs_.back();
             lirs_.pop_back();
             
             cache_.at(evicted).type_ = detail::pageKey_t::HIR;
@@ -117,7 +117,7 @@ void LIRSCache<valType, keyType>::put(keyType key, const valType& value)
         
         if (lirs_.size() > lirss_) // If lirs is crowded
         {
-            const int evicted = lirs_.back();
+            const keyType evicted = lirs_.back();
             lirs_.pop_back();
             
             cache_.at(evicted).type_ = detail::pageKey_t::HIR;
@@ -128,7 +128,7 @@ void LIRSCache<valType, keyType>::put(keyType key, const valType& value)
         
         if (hirs_.size() >= hirss_)
         {
-            const int evicted = hirs_.back();  
+            const keyType evicted = hirs_.back();  
             cache_.erase(evicted);
             hirs_.pop_back();
 
@@ -145,7 +145,7 @@ void LIRSCache<valType, keyType>::put(keyType key, const valType& value)
     {
         if (hirs_.size() >= hirss_)
         {
-            const int evicted = hirs_.back();  
+            const keyType evicted = hirs_.back();  
             cache_.erase(evicted);
             hirs_.pop_back();
 
