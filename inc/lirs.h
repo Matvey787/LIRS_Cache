@@ -12,7 +12,7 @@
 #include <functional>
 
 template<typename keyT, typename pageT = keyT>
-pageT slow_get_page(const keyT key)
+pageT slow_get_page(const keyT& key)
 {
     return key;
 }
