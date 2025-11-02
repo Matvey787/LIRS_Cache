@@ -11,13 +11,14 @@
 #include <algorithm>
 #include <functional>
 
-namespace LIRS {
-
 template<typename keyT, typename pageT = keyT>
 pageT slow_get_page(const keyT key)
 {
     return key;
 }
+
+namespace LIRS {
+
 
 namespace detail {
     const double LIR_PERCENTAGE = 0.7;
