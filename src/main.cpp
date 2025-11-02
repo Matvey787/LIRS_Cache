@@ -1,7 +1,5 @@
 #include <vector>
 #include <iostream>
-#include <thread>
-#include <chrono>
 
 #if defined(OPT_M)
 #include "opt.h"
@@ -32,7 +30,6 @@ int main()
         #ifdef CACHE_RENDER_M
             Rendering::generateData("py/cacheData.txt", "py/OPTCacheData.txt");
         #else
-            // Запуска собственного теста (как в задании)
             run();
         #endif
     }
@@ -52,13 +49,11 @@ static void run()
     int key = 0;
     std::vector<int> keys;
 
-
-    // std::cout << "Enter [cache capacity] [number of keys] <keys>" << std::endl;
     std::cin >> capacity >> numOfKeys;
 
     if (numOfKeys == 0)
     {
-        // 0 хитов
+        // 0 hits
         return;
     }
 
@@ -71,16 +66,7 @@ static void run()
     if(keys.size() != numOfKeys)
         throw std::runtime_error("Invalid number of keys");
     
-
-    // std::cout << "Hits: " << hits << std::endl;
     std::cout << checkCache(keys, capacity) << std::endl;
-}
-
-template<typename keyType>
-keyType slow_get_page(keyType key)
-{
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    return key;
 }
 
 static size_t checkCache(const std::vector<int>& keys, size_t capacity)
@@ -97,10 +83,6 @@ static size_t checkCache(const std::vector<int>& keys, size_t capacity)
             if (cache.get(key) != nullptr)
             {
                 hits++;
-            }
-            else
-            {
-                cache.put(key, slow_get_page(key));
             }
         }
     #endif

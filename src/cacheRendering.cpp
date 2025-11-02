@@ -107,13 +107,14 @@ size_t detail::getCacheHits(const std::vector<int>& keys)
 
     for (const auto key : keys)
     {
-        if (cache.get(key) != nullptr){
+        if (cache.get(key) != nullptr)
+        {
             hits++;
         }
-        else
-        {
-            cache.put(key, key);
-        }
+        // else // now get auto update cache with new page
+        // {
+        //     cache.put(key, LIRS::slow_get_page<int>);
+        // }
     }
     return hits;
 }
