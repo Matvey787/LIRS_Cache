@@ -107,7 +107,7 @@ size_t detail::getCacheHits(const std::vector<int>& keys)
 
     for (const auto key : keys)
     {
-        if (cache.get(key) != nullptr)
+        if (cache.get(key, slow_get_page<int>) != nullptr)
         {
             hits++;
         }

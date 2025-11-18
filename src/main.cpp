@@ -80,7 +80,7 @@ static size_t checkCache(const std::vector<int>& keys, size_t capacity)
         LIRS::LIRSCache<int, int> cache(capacity);
         for (int key : keys)
         {
-            if (cache.get(key) != nullptr)
+            if (cache.get(key, slow_get_page<int, int>) != nullptr)
             {
                 hits++;
             }

@@ -63,7 +63,7 @@ public:
         nrhirss_ = c_;
     }
 
-    pageT* get(keyT key);
+    pageT* get(keyT key, std::function<pageT(const keyT&)> slow_get_page);
     void put(keyT key, std::function<pageT(const keyT&)> slow_get_page);
 
     template <typename T>
@@ -71,7 +71,7 @@ public:
 };
 
 template<typename pageT, typename keyT>
-pageT* LIRSCache<pageT, keyT>::get(keyT key)
+pageT* LIRSCache<pageT, keyT>::get(keyT key, std::function<pageT(const keyT&)> slow_get_page)
 {
     auto pageIter = cache_.find(key);
 
@@ -79,7 +79,7 @@ pageT* LIRSCache<pageT, keyT>::get(keyT key)
 
     if (pageIter == cache_.end())
     {
-        put(key, slow_get_page<keyT>);
+        put(key, slow_get_page);
         return nullptr;
     }
 
@@ -120,7 +120,7 @@ LIRSCache<pageT, keyT>::put(keyT key, std::function<pageT(const keyT&)> slow_get
     auto page = cache_.find(key);
     if (page != cache_.end())
     {
-        get(key);
+        get(key, slow_get_page);
         return;
     }
 
